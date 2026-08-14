@@ -1,1035 +1,586 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>茶艺是非问答小游戏</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Microsoft YaHei", sans-serif;
-        }
-        body {
-            background: #f5f1e9;
-            color: #333;
-            padding: 30px 15px;
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 16px;
-            padding: 40px 30px;
-            box-shadow: 0 4px 16px rgba(120, 80, 40, 0.12);
-        }
-        h1 {
-            text-align: center;
-            color: #7c4c2e;
-            margin-bottom: 30px;
-            font-size: 28px;
-        }
-        .info-bar {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 25px;
-            font-size: 16px;
-            color: #666;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #eee;
-        }
-        .question-box {
-            font-size: 19px;
-            line-height: 1.7;
-            min-height: 100px;
-            padding: 20px;
-            background: #faf6ef;
-            border-radius: 10px;
-            margin-bottom: 25px;
-        }
-        .btn-group {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-bottom: 25px;
-        }
-        button {
-            padding: 12px 40px;
-            border: none;
-            border-radius: 8px;
-            font-size: 17px;
-            cursor: pointer;
-            transition: 0.2s all;
-        }
-        .btn-yes {
-            background: #5a9e6f;
-            color: white;
-        }
-        .btn-no {
-            background: #d9605b;
-            color: white;
-        }
-        .btn-next, .btn-restart {
-            background: #7c4c2e;
-            color: white;
-            width: 220px;
-            margin: 10px auto;
-            display: block;
-        }
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .answer-explain {
-            padding: 20px;
-            background: #f0e8dd;
-            border-radius: 10px;
-            margin-top: 20px;
-            display: none;
-        }
-        .answer-explain h3 {
-            color: #7c4c2e;
-            margin-bottom: 10px;
-            font-size: 18px;
-        }
-        .explain-text {
-            line-height: 1.7;
-            font-size: 16px;
-        }
-        .score-final {
-            text-align: center;
-            font-size: 24px;
-            color: #7c4c2e;
-            margin: 30px 0;
-            display: none;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retro Flip Clock | 復古翻頁鐘</title>
+  <style>
+    /* ----------------------------------------------------
+       1. 全局變數與基礎設定
+    ---------------------------------------------------- */
+    :root {
+      --bg-color: #0f1115;
+      --card-bg: #1e222b;
+      --card-gradient-top: #252a35;
+      --card-gradient-bottom: #191c24;
+      --text-color: #f0f3f8;
+      --accent-color: #4f46e5;
+      --accent-hover: #6366f1;
+      --border-color: #2e3545;
+      --shadow-color: rgba(0, 0, 0, 0.6);
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: var(--font-family);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    /* ----------------------------------------------------
+       2. Header & 控制列 (日期/格式切換)
+    ---------------------------------------------------- */
+    .header-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 780px;
+      padding: 0 10px;
+    }
+
+    .date-display {
+      font-size: 1.25rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .day-badge {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: #e5e7eb;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .format-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card-bg);
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    .format-toggle span {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      font-weight: 600;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 22px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #374151;
+      transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 22px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--accent-color);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
+    /* ----------------------------------------------------
+       3. 翻頁鐘主體 UI Components
+    ---------------------------------------------------- */
+    .clock-grid {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      position: relative;
+    }
+
+    .group-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .flip-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .group-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #6b7280;
+    }
+
+    .separator {
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: #4b5563;
+      margin-top: -25px;
+      user-select: none;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* AM/PM 標示 */
+    .ampm-indicator {
+      position: absolute;
+      right: -55px;
+      bottom: 40px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent-color);
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 6px 10px;
+      border-radius: 8px;
+      letter-spacing: 1px;
+      display: none; /* 24H 模式下隱藏 */
+    }
+
+    /* ----------------------------------------------------
+       4. 3D 翻頁卡片核心 CSS (Flip Card Core)
+    ---------------------------------------------------- */
+    .flip-card {
+      position: relative;
+      width: 100px;
+      height: 140px;
+      font-size: 5.5rem;
+      font-weight: 800;
+      line-height: 140px;
+      border-radius: 12px;
+      perspective: 400px;
+      box-shadow: 0 10px 25px var(--shadow-color);
+      user-select: none;
+    }
+
+    /* 上半部與下半部通用樣式 */
+    .card-top, .card-bottom {
+      position: absolute;
+      left: 0;
+      right: 0;
+      overflow: hidden;
+      background: linear-gradient(180deg, var(--card-gradient-top) 0%, var(--card-gradient-bottom) 100%);
+      text-align: center;
+      color: var(--text-color);
+      border-left: 1px solid rgba(255, 255, 255, 0.05);
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .card-top {
+      top: 0;
+      height: 50%;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.7);
+    }
+
+    .card-top span {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .card-bottom {
+      bottom: 0;
+      height: 50%;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+    }
+
+    .card-bottom span {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    /* 卡片中央分隔裂縫效果 */
+    .flip-card::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: rgba(10, 12, 16, 0.8);
+      transform: translateY(-50%);
+      z-index: 5;
+      box-shadow: 0 1px 1px rgba(255, 255, 255, 0.05);
+    }
+
+    /* 翻頁動態疊層 */
+    .flip-card .flip-leaf-top,
+    .flip-card .flip-leaf-bottom {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 50%;
+      overflow: hidden;
+      background: linear-gradient(180deg, var(--card-gradient-top) 0%, var(--card-gradient-bottom) 100%);
+      text-align: center;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .flip-card .flip-leaf-top {
+      top: 0;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      transform-origin: bottom;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.7);
+      z-index: 3;
+    }
+
+    .flip-card .flip-leaf-top span {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .flip-card .flip-leaf-bottom {
+      bottom: 0;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+      transform-origin: top;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+      z-index: 2;
+    }
+
+    .flip-card .flip-leaf-bottom span {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    /* 翻頁動畫 Keyframes */
+    .flip-card.flipping .flip-leaf-top {
+      animation: flip-top 0.3s ease-in forwards;
+    }
+
+    .flip-card.flipping .flip-leaf-bottom {
+      animation: flip-bottom 0.3s 0.3s ease-out forwards;
+    }
+
+    @keyframes flip-top {
+      0% { transform: rotateX(0deg); }
+      100% { transform: rotateX(-90deg); }
+    }
+
+    @keyframes flip-bottom {
+      0% { transform: rotateX(90deg); }
+      100% { transform: rotateX(0deg); }
+    }
+
+    /* ----------------------------------------------------
+       5. 響應式微調 (RWD)
+    ---------------------------------------------------- */
+    @media (max-width: 768px) {
+      .header-panel {
+        flex-direction: column-reverse;
+        gap: 15px;
+      }
+      .clock-grid {
+        gap: 10px;
+      }
+      .flip-card {
+        width: 54px;
+        height: 80px;
+        font-size: 3.2rem;
+        line-height: 80px;
+        border-radius: 8px;
+      }
+      .card-top, .card-leaf-top { border-top-left-radius: 8px; border-top-right-radius: 8px; }
+      .card-bottom, .card-leaf-bottom { border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
+      .separator {
+        font-size: 2rem;
+        margin-top: -15px;
+      }
+      .ampm-indicator {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        align-self: center;
+        margin-top: 10px;
+      }
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-    <h1>🍵 茶艺是非问答小游戏</h1>
-    <div class="info-bar">
-        <div>当前题目：<span id="current-num">0</span>/<span id="total-count">0</span></div>
-        <div>当前得分：<span id="score">0</span> 分</div>
-    </div>
-    <div class="question-box" id="question-text">
-        点击开始游戏加载题目
-    </div>
-    <div class="btn-group" id="select-buttons">
-        <button class="btn-yes" id="btn-true">对（√）</button>
-        <button class="btn-no" id="btn-false">错（×）</button>
-    </div>
-    <div class="answer-explain" id="explain-block">
-        <h3>标准答案与解析</h3>
-        <div class="explain-text" id="explain-content"></div>
-        <button class="btn-next" id="btn-next">下一题</button>
-    </div>
-    <div class="score-final" id="final-block">
-        全部题目完成！你的总得分：<span id="final-score">0</span> / <span id="final-total">0</span>
-        <br><br>
-        <button class="btn-restart" id="btn-restart">请重新开始</button>
-    </div>
-</div>
 
-<script>
-// 完整题库：150道完整录入，修复题目不全导致提前结束bug
-const questionList = [
-    {
-        q: "茶艺师的职业道德是社会主义道德基本原则在茶艺服务中的具体体现。",
-        ans: true,
-        desc: "解析：职业道德是社会道德在职业活动中的具体化，茶艺师职业道德将社会主义道德落实到茶饮服务、接待经营等工作场景，规范从业者言行，该说法正确。"
-    },
-    {
-        q: "善与恶是评价职业道德行为的根本标准。",
-        ans: true,
-        desc: "解析：善恶是道德评判的核心尺度，符合行业规范、顾客权益、社会公利的行为为善，损害他人与行业形象的行为为恶，是评判职业行为的根本标准。"
-    },
-    {
-        q: "茶艺师遵守职业道德有利于提高个人修养，但会降低工作效率。",
-        ans: false,
-        desc: "解析：遵守职业道德规范服务流程、礼貌待客、规范操作，能减少沟通矛盾、提升服务流畅度，不仅提升个人修养，还会提高整体工作效率，不会降低效率。"
-    },
-    {
-        q: "职业责任是指在特定的职业范围内从事某种职业的人们要共同遵守的行为准则。",
-        ans: false,
-        desc: "解析：题干描述的是「职业规范/职业守则」；职业责任指从业者需要承担的岗位义务、工作职责，二者概念不能混淆。"
-    },
-    {
-        q: "茶业“兴于唐而盛于宋”。",
-        ans: true,
-        desc: "解析：唐代全民饮茶、煎茶法普及，茶产业兴起；宋代点茶、斗茶风靡，茶具、茶文化、茶叶贸易全面繁荣，故茶业兴于唐、盛于宋。"
-    },
-    {
-        q: "茶在中国的应用，最早是食用和饮用，最后才上升到药用。",
-        ans: false,
-        desc: "解析：古籍记载最早茶叶作药用，神农尝百草利用茶解毒；之后发展为羹饮食用，最后才形成日常品饮顺序，题干顺序颠倒。"
-    },
-    {
-        q: "早期的茶煮作羹饮的方式就是唐代烹茶的方式。",
-        ans: false,
-        desc: "解析：上古羹饮是将茶叶和蔬菜、谷物同煮作菜汤；唐代煎茶专用饼茶碾碎煎煮，工艺、饮用形式完全不同，不能等同。"
-    },
-    {
-        q: "唐人饮茶不注重品饮艺术。",
-        ans: false,
-        desc: "解析：唐代陆羽著《茶经》，规范煎茶器具、用水、火候，形成完整煎茶美学体系，十分重视品饮艺术。"
-    },
-    {
-        q: "茶俗是茶文化的核心。",
-        ans: false,
-        desc: "解析：茶文化四层结构中，心态文化（茶道、茶精神、审美思想）是核心；茶俗属于行为文化，只是茶文化外在表现形式。"
-    },
-    {
-        q: "茶文化包含物态文化、制度文化、行为文化、心态文化四个层次。",
-        ans: true,
-        desc: "解析：标准茶文化分层理论：物态（茶叶、茶具）、制度（茶税、贡茶制度）、行为（茶礼、茶俗）、心态（茶道精神、审美）四层。"
-    },
-    {
-        q: "荷兰人经海路从中国香港贩运茶叶到印度尼西亚。",
-        ans: false,
-        desc: "解析：早期西方贩茶港口为厦门、广州，清代香港开埠很晚，荷兰东印度公司最早从厦门采购茶叶运往印尼，并非香港。"
-    },
-    {
-        q: "茶树育苗目前均采用无性繁殖的方式。",
-        ans: true,
-        desc: "解析：优良茶树品种多采用扦插、压条等无性繁殖，保证后代性状稳定；有性繁殖仅用于育种科研，商业化育苗全部无性繁殖。"
-    },
-    {
-        q: "现在比较通行的办法是将茶叶分为基本茶类和再加工茶类。",
-        ans: true,
-        desc: "解析：现代茶叶通用分类：六大基础茶（绿白黄青红黑）为基本茶；花茶、紧压茶、萃取茶等为再加工茶。"
-    },
-    {
-        q: "安吉白茶属于白茶类。",
-        ans: false,
-        desc: "解析：安吉白茶是低温白化的绿茶，加工无萎凋轻发酵工序；白茶是轻微发酵茶，二者工艺、品类完全区分。"
-    },
-    {
-        q: "茶叶储存不需要避光，光照可以使干爽，更有利于保存。",
-        ans: false,
-        desc: "解析：光线会加速茶多酚氧化、产生日晒味，破坏香气，茶叶储存必须全程避光、密封、低温干燥。"
-    },
-    {
-        q: "商品茶只能是精制茶，不能是毛茶。",
-        ans: false,
-        desc: "解析：毛茶经过简单包装也可直接作为初级商品流通，精制茶是精加工分级后的成品茶，二者都属于商品茶。"
-    },
-    {
-        q: "干燥的工具一般有炒茶锅和烘干机。",
-        ans: true,
-        desc: "解析：绿茶炒干依靠炒茶锅；红茶、乌龙茶、花茶多用烘干机烘干，二者是茶叶干燥核心设备。"
-    },
-    {
-        q: "恢复性历史名茶主要指历史上曾有过，后来未能持续生产或工艺失传，经过创新研究可恢复的名茶。",
-        ans: true,
-        desc: "解析：恢复历史名茶定义：古代知名、中途断产/工艺失传，现代通过史料复原工艺、重新投产的茶叶。"
-    },
-    {
-        q: "中国茶叶品质的鉴别检测目前有仪器检测和感官审评两种方法。",
-        ans: true,
-        desc: "解析：茶叶质检分为感官审评（专业评茶师看外形、汤色、香气、滋味）与理化仪器检测（水分、农残、茶多酚含量）两大体系。"
-    },
-    {
-        q: "元代出现了一种鼓腹、有管状流和把手或提梁的茶壶。",
-        ans: true,
-        desc: "解析：宋代以点茶盏为主，元代散茶冲泡兴起，带流执壶、提梁壶大量烧制，适配直接泡茶饮用。"
-    },
-    {
-        q: "柴烧作品在出窑前任何人对成品都没把握，但总会有出乎意料的收获。",
-        ans: true,
-        desc: "解析：柴烧依靠柴火落灰自然釉化，窑内温度、火痕不可精准控制，成品随机性强，常出现独一无二的纹理效果。"
-    },
-    {
-        q: "秋色瓷是朝廷和庶民都可使用的瓷器。",
-        ans: false,
-        desc: "解析：宋代官窑、汝窑等专属宫廷瓷器民间禁止使用，部分单色御瓷为皇室专用，平民不得烧制持有。"
-    },
-    {
-        q: "陶器的发明，是人类社会由旧石器时代发展到新石器时代的标志之一。",
-        ans: true,
-        desc: "解析：旧石器仅打制石器；新石器出现磨制石器、农耕、制陶技术，陶器是新石器文明标志性产物。"
-    },
-    {
-        q: "常用的紫砂茶具种类有紫砂壶、煮水器、茶杯、茶船、茶叶罐等。",
-        ans: true,
-        desc: "解析：紫砂整套茶具包含泡茶壶、品茗杯、茶承（茶船）、储茶罐、紫砂烧水器等配套器具。"
-    },
-    {
-        q: "无锡惠山泉、庐山康王谷谷帘泉、苏州观音泉、杭州虎跑泉和济南趵突泉，号称中国五大名泉。",
-        ans: false,
-        desc: "解析：传统天下五大名泉为：惠山泉、谷帘泉、虎跑泉、观音泉、镇江中泠泉，不含趵突泉。"
-    },
-    {
-        q: "不能通过煮沸后转化成软水的硬水，称为永久硬水。",
-        ans: true,
-        desc: "解析：永久硬水含钙镁硫酸盐、氯化物，煮沸无法沉淀去除；暂时硬水为碳酸氢盐，加热煮沸可析出水垢变为软水。"
-    },
-    {
-        q: "被民族英雄文天祥称为扬子江心第一泉的是庐山康王谷谷帘泉。",
-        ans: false,
-        desc: "解析：扬子江心第一泉指镇江中泠泉；谷帘泉是陆羽评定天下第一泉，二者混淆。"
-    },
-    {
-        q: "以冲泡方式来分，茶艺主要有烹茶法、点茶法、泡茶法等。",
-        ans: true,
-        desc: "解析：历代主流饮茶技法：唐代烹（煎）茶、宋代点茶、明清至今散茶直接冲泡，三类茶艺体系。"
-    },
-    {
-        q: "好茶的香气自然、纯真，一般小种红茶带有蜜糖香、干果香。",
-        ans: false,
-        desc: "解析：正山小种传统带有松烟香；蜜糖香、果蜜香多见于金骏眉、滇红，不是小种红茶标准香型。"
-    },
-    {
-        q: "冲泡信阳毛尖绿茶，适宜用玻璃杯，用上投法冲泡。",
-        ans: false,
-        desc: "解析：信阳毛尖芽头细嫩，上投法水温高易烫熟芽叶；适合下投/中投低温水冲泡保护鲜爽度。"
-    },
-    {
-        q: "泡茶的水温，通常是指将泡茶用水烧沸后，再让其自然冷却至所需的温度。",
-        ans: true,
-        desc: "解析：实操茶艺标准操作：水完全煮沸后静置降温，避免沸水直接冲泡细嫩茶叶破坏营养与香气。"
-    },
-    {
-        q: "在茶艺活动中，礼仪是对茶艺师的要求，对品茶人和其它参与者不作要求。",
-        ans: false,
-        desc: "解析：茶道礼仪双向约束，茶艺师、宾客都需遵守奉茶、行礼、安静品饮等礼仪规范，营造和谐茶席氛围。"
-    },
-    {
-        q: "所有红、绿茶的冲泡水温都建议控制在80℃左右。",
-        ans: false,
-        desc: "解析：全发酵老红茶、陈年绿茶可用95-100℃沸水；仅单芽、一芽一叶名优绿茶适用80℃低温，不能一概而论。"
-    },
-    {
-        q: "冲泡乌龙茶时，由于用茶量大，冲泡时间应随着冲泡次数逐渐缩短。",
-        ans: false,
-        desc: "解析：乌龙茶多次冲泡后内含物质逐步析出减少，每一泡浸泡时间需要逐步延长，而非缩短。"
-    },
-    {
-        q: "茶鲜叶中的含量比例最高的物质是茶多酚。",
-        ans: false,
-        desc: "解析：鲜叶水分占75%-80%，是含量最高物质；茶多酚干茶中占比高，鲜叶中远低于水分。"
-    },
-    {
-        q: "《神农本草经》最早记载了茶能解毒，可以把茶作为一味防病治疾、养生保健的药物来应用。",
-        ans: true,
-        desc: "解析：古籍《神农本草经》记录茶叶解毒、清热功效，是最早将茶作为药用典籍记录。"
-    },
-    {
-        q: "茶叶中含有多糖类物质和蛋白质，建议糖尿病患者不喝。",
-        ans: false,
-        desc: "解析：茶叶茶多糖辅助调节血糖，无糖淡茶水适合糖尿病人饮用；只有加糖调味茶饮才不适合。"
-    },
-    {
-        q: "食品是指供人食用或饮用的成品和原料以及按照传统既是食品又是药品的物品，也包括以治疗为目的的物品。",
-        ans: false,
-        desc: "解析：食品安全法规定义食品不含药用治疗产品，以治疗疾病为目的属于药品，不属于食品范畴。"
-    },
-    {
-        q: "茶艺馆经营场所严禁存放易燃、易爆、有毒的物品。",
-        ans: true,
-        desc: "解析：茶馆明火煮水、多木质软装，消防规范禁止存放酒精、汽油、化工有毒危险品，规避火灾中毒风险。"
-    },
-    {
-        q: "消费者因使用不当造成商品损坏的，经营者不负赔偿责任。",
-        ans: true,
-        desc: "解析：消费者权益保护法规定，人为操作不当、自行损毁商品，商家无需承担赔偿。"
-    },
-    {
-        q: "男女茶艺人员在进行茶艺服务过程中皆不能留长指甲。不可浓妆艳抹或涂任何指甲油。",
-        ans: true,
-        desc: "解析：茶艺卫生规范：长指甲易藏污纳垢污染茶具茶汤；指甲油、浓妆异味会干扰茶香，统一禁止。"
-    },
-    {
-        q: "茶艺人员在茶馆工作时，可佩戴纯金发簪，以体现茶艺馆高端的服务品质。",
-        ans: false,
-        desc: "解析：工作饰品要求简约小巧，金属发簪体积偏大易掉落混入茶器，服务过程禁止佩戴大型头饰。"
-    },
-    {
-        q: "茶事服务形体礼仪要求身体姿态应该保持自然、端庄。",
-        ans: true,
-        desc: "解析：茶艺站姿、坐姿、奉茶动作标准核心为端正舒展，不歪靠、不浮夸，呈现文雅气质。"
-    },
-    {
-        q: "路遇熟悉的宾客应可不用普通话主动打招呼问好，以体现亲切。",
-        ans: false,
-        desc: "解析：营业场所通用普通话接待，避免方言造成其他客人听不懂，统一使用标准普通话问候。"
-    },
-    {
-        q: "在接待宾客、介绍茶品、解答询问时，语言要亲切，音量要适中，音调简洁清晰。",
-        ans: true,
-        desc: "解析：茶艺服务语言规范：语调柔和、音量适中、表达简练清晰，兼顾礼貌与专业。"
-    },
-    {
-        q: "茶室工作人员的职责包括清洁茶具和茶室设施。",
-        ans: true,
-        desc: "解析：日常保洁是茶艺员基础岗位职责，包含茶具清洗消毒、桌面地面、电器设备维护清洁。"
-    },
-    {
-        q: "茶事服务中，当不需要茶艺师亲自冲泡时，茶艺师为客人提供所选茶品后，应日常巡视。",
-        ans: true,
-        desc: "解析：自助泡茶区域需要定时巡场，主动添水、清理废弃茶渣、响应客人需求。"
-    },
-    {
-        q: "茶室环境卫生只需要定期清扫即可，不需要消毒。",
-        ans: false,
-        desc: "解析：茶具、桌面、公共区域除清扫外，必须定时消毒，预防细菌交叉感染，符合餐饮经营卫生标准。"
-    },
-    {
-        q: "茶室环境卫生的维护措施包括在茶室內放置垃圾桶并定期清理。",
-        ans: true,
-        desc: "解析：分区设置垃圾桶，及时清理茶渣、纸巾等垃圾，保持室内无异味、整洁。"
-    },
-    {
-        q: "茶室在音响设备日常维护时，应保持音响设备的清洁，定期清理灰尘和污垢，避免影响音质。",
-        ans: true,
-        desc: "解析：积灰堵塞喇叭会造成杂音、音量失真，定期擦拭除尘是音响基础维护手段。"
-    },
-    {
-        q: "摇晃灭火器可以帮助增加灭火器的工作效果。",
-        ans: true,
-        desc: "解析：干粉灭火器药剂易沉淀结块，使用前上下摇晃混合干粉，喷射效果更好。"
-    },
-    {
-        q: "消防灭火器具體分为干粉类、泡沫类和气体类三大种类。",
-        ans: true,
-        desc: "解析：商用场所主流灭火器分类：干粉、泡沫、二氧化碳气体灭火器三类，适配不同火情。"
-    },
-    {
-        q: "佩戴好后，检查防毒面具是否密合。可将手掌放在防毒面具的吸气口上，用力吸气，若感觉有吸力，说明密合良好。",
-        ans: true,
-        desc: "解析：防毒面具气密性标准检测方法：封堵进气吸气，面罩内负压吸附面部无漏气即为合格。"
-    },
-    {
-        q: "“嫩茶杯泡，老茶壶泡”，所以一般广东特色的蒸青绿茶展示表演可选用玻璃杯冲泡法来表演。",
-        ans: true,
-        desc: "解析：蒸青绿茶芽叶细嫩，玻璃杯直观观赏茶叶舒展，符合嫩茶杯泡原则，适合舞台展示。"
-    },
-    {
-        q: "为了节省铁观音紫砂壶茶艺表演的时间，一般会先将茶壶烫热后，再将茶叶浸泡在壶里10s即可把茶汤倒出。",
-        ans: false,
-        desc: "解析：铁观音紧结重实，10秒出汤茶汤淡薄无香气，标准润茶后第一泡浸泡时间不少于20-30秒。"
-    },
-    {
-        q: "由于潮州工夫茶多选用凤凰水仙系茶品，该种茶条索粗大挺直，适合用大肚开口的盖碗冲泡。",
-        ans: true,
-        desc: "解析：凤凰单丛条索粗壮，宽口盖碗便于投取茶叶、充分舒展，是潮州工夫传统器具。"
-    },
-    {
-        q: "名优绿茶大多采用细嫩的芽叶经过精细加工而成，在饮用时，为了保持其香味的鲜爽，一般采用80-90℃水温冲泡名优绿茶。因此，在名优绿茶感官审评时，我们选择90℃的水温进行冲泡。",
-        ans: false,
-        desc: "解析：国标茶叶审评统一使用100℃沸水冲泡，日常饮用降温防烫芽，审评需沸水完全释放内质，二者标准不同。"
-    },
-    {
-        q: "奉茶时，茶艺师不能喷香水，涂抹有异味的护手霜。",
-        ans: true,
-        desc: "解析：外来浓烈香气会干扰茶叶本身香气，茶道操作全程禁止香水、香氛护手霜、香精类护肤品。"
-    },
-    {
-        q: "演示冲泡绿茶时，茶杯的每50毫升容量用茶2克。",
-        ans: false,
-        desc: "解析：绿茶标准茶水比例1:50，50ml水投茶1g；50ml投2g浓度过高，不符合常规演示标准。"
-    },
-    {
-        q: "用盖碗冲泡绿茶时，应在冲入开水后，迅速将盖碗盖严。",
-        ans: true,
-        desc: "解析：加盖锁住茶香，避免香气快速散失，同时减少水温快速下降，保证茶叶物质析出。"
-    },
-    {
-        q: "用壶泡绿茶，茶叶用量按壶的大小而定，一般以每克茶冲100mL的水的比例，将茶叶投入茶壶待泡。",
-        ans: true,
-        desc: "解析：绿茶通用茶水比例1g/100ml，壶泡以此基准根据壶容积调整投茶量。"
-    },
-    {
-        q: "泡饮红茶一般将茶叶放在锅中熬煮。",
-        ans: false,
-        desc: "解析：现代红茶多沸水直接冲泡；熬煮多见于少数民族奶茶、古式煮茶，不属于常规泡饮方式。"
-    },
-    {
-        q: "铁观音具有天然花香，汤色澄明黄亮，碗内壁显金圈，滋味浓醇鲜爽，叶底匀齐，青叶镶红边的特点。",
-        ans: true,
-        desc: "解析：传统正味铁观音轻发酵，叶缘发酵变红，叶底青底红镶边，花香明显、茶汤金黄带金圈。"
-    },
-    {
-        q: "台湾乌龙茶冲泡时，温壶烫盘是将开水注入紫砂壶和公道杯中，持壶摇晃数下，以巡回往复的方式注入闻香杯和品杯中。",
-        ans: true,
-        desc: "解析：台式乌龙温杯流程：烫壶、烫公道、巡回温闻香杯品杯，统一器具温度稳定茶汤。"
-    },
-    {
-        q: "黄茶和白茶一样，都是属于微发酵茶。",
-        ans: true,
-        desc: "解析：白茶发酵度5%-10%，黄茶闷黄轻微发酵10%-20%，二者均归为微发酵茶类。"
-    },
-    {
-        q: "广西六堡散茶属于四川边茶。",
-        ans: false,
-        desc: "解析：六堡茶是广西梧州特产黑茶；四川边茶为康砖、金尖，产地、品类完全区分。"
-    },
-    {
-        q: "茉莉花茶常见的品质缺陷有青闷、花蒂味、香浮、香薄。",
-        ans: true,
-        desc: "解析：花茶加工工艺不当易产生青草闷味、残留花梗味，香气轻浮不落水、香气淡薄为典型劣质表现。"
-    },
-    {
-        q: "用盖碗泡饮茶叶，需要正确选择茶叶、正确冲泡方法和正确的品饮。",
-        ans: true,
-        desc: "解析：盖碗适配茶类、水温、出汤时间需要匹配，配合正确品鉴步骤才能完整感受茶叶风味。"
-    },
-    {
-        q: "绿茶品饮时，品尝头开茶，重在品尝名优绿茶的鲜味和茶香。",
-        ans: true,
-        desc: "解析：第一泡绿茶鲜爽物质含量最高，是感受毫香、清香、鲜甜味的最佳一泡。"
-    },
-    {
-        q: "清饮红茶品饮时，重在领略它的香气和滋味。",
-        ans: true,
-        desc: "解析：清饮不加奶糖，纯粹感受红茶蜜香、果香、醇厚顺滑茶汤本色风味。"
-    },
-    {
-        q: "红茶的品质特性是不含叶绿素、维生素C，茶性温热。",
-        ans: false,
-        desc: "解析：红茶发酵后叶绿素大量转化，但仍有微量残留；含有少量维生素C，并非完全不含。"
-    },
-    {
-        q: "乌龙茶属青茶类，为全发酵茶，其茶叶呈深绿或青褐色，茶汤呈密绿或密黄色。",
-        ans: false,
-        desc: "解析：乌龙茶是半发酵茶，不是全发酵；全发酵为红茶，概念混淆错误。"
-    },
-    {
-        q: "慈禧太后的养生之道是：白天喜欢饮用金银花茶，晚上临睡前饮用糖茶，服用滋补的珍珠粉时，也喜欢用茶水送服。",
-        ans: true,
-        desc: "解析：清宫史料记载慈禧日常茶饮习惯，白日清热花茶、睡前甜茶，茶水送服珍珠养颜。"
-    },
-    {
-        q: "苏轼写的《叶嘉传》中，叶嘉君指的是茶圣陆羽。",
-        ans: false,
-        desc: "解析：《叶嘉传》以拟人手法写茶叶，叶嘉代指茶叶本身，并非陆羽。"
-    },
-    {
-        q: "茶的抗癌作用是最近20多年来研究得最多并取得显著进展的领域。",
-        ans: true,
-        desc: "解析：现代药理近二十年大量研究证实茶多酚、EGCG具备抗氧化、抑制癌细胞增殖相关活性，是热门研究方向。"
-    },
-    {
-        q: "在茶艺销售的服务中，主动导购多用于顾客较多的时候，具有针对性强、易于双向沟通等优点。",
-        ans: false,
-        desc: "解析：主动一对一导购适合少量客人；客流多时适合自助展示、被动答疑，多人接待无法精准一对一沟通。"
-    },
-    {
-        q: "茶艺服务人员遇到初次相交的顾客时应热情行握手礼。",
-        ans: false,
-        desc: "解析：茶道接待初次宾客以鞠躬、点头礼为主，不主动握手，尊重客人社交距离。"
-    },
-    {
-        q: "在向顾客推介茶叶商品、茶艺服务时，要做到“先难后易”，即在推介时应当从顾客难理解的地方着手，然后其他问题理解起来就很简单。",
-        ans: false,
-        desc: "解析：销售推介标准逻辑为先简单易懂基础款，循序渐进介绍高端复杂品类，先易后难降低理解门槛。"
-    },
-    {
-        q: "如果客观上无能满足顾客的要求，却在主观上给予肯定的承诺，这样是为了安抚顾客，让顾客感受到自己的诚意。",
-        ans: false,
-        desc: "解析：无法达成需求不可虚假承诺，应当如实说明并提供替代方案，虚假承诺会引发客诉失去信任。"
-    },
-    {
-        q: "茶艺师在向顾客推销茶品时，要保持客观，提升说服力，在达成共识的基础上实现交易。",
-        ans: true,
-        desc: "解析：客观介绍茶叶优缺点、适配人群，不夸大宣传，建立信任后促成合理消费。"
-    },
-    {
-        q: "茶艺师的职业道德是社会主义道德基本原则在茶艺服务中的具体体现。",
-        ans: true,
-        desc: "解析：职业道德是社会道德在职业活动中的具体化，茶艺师职业道德将社会主义道德落实到茶饮服务、接待经营等工作场景，规范从业者言行，该说法正确。"
-    },
-    {
-        q: "善与恶是评价职业道德行为的根本标准。",
-        ans: true,
-        desc: "解析：善恶是道德评判的核心尺度，符合行业规范、顾客权益、社会公利的行为为善，损害他人与行业形象的行为为恶，是评判职业行为的根本标准。"
-    },
-    {
-        q: "茶艺师遵守职业道德有利于提高个人修养，但会降低工作效率。",
-        ans: false,
-        desc: "解析：遵守职业道德规范服务流程、礼貌待客、规范操作，能减少沟通矛盾、提升服务流畅度，不仅提升个人修养，还会提高整体工作效率，不会降低效率。"
-    },
-    {
-        q: "职业义务是指从业人员在职业活动中对他人、对社会应尽的责任。",
-        ans: true,
-        desc: "解析：职业义务定义即岗位从业者需要承担对客户、企业、社会的法定与道德责任。"
-    },
-    {
-        q: "茶业“兴于唐而盛于宋”。",
-        ans: true,
-        desc: "解析：唐代全民饮茶、煎茶法普及，茶产业兴起；宋代点茶、斗茶风靡，茶具、茶文化、茶叶贸易全面繁荣，故茶业兴于唐、盛于宋。"
-    },
-    {
-        q: "三国时，北方已存在了茶的一定贸易时期。",
-        ans: false,
-        desc: "解析：三国茶叶主产区巴蜀江南，北方饮茶极少，无规模化茶叶贸易。"
-    },
-    {
-        q: "早期的茶煮作羹饮的方式就是唐代烹茶的方式。",
-        ans: false,
-        desc: "解析：上古羹饮是将茶叶和蔬菜、谷物同煮作菜汤；唐代煎茶专用饼茶碾碎煎煮，工艺、饮用形式完全不同，不能等同。"
-    },
-    {
-        q: "唐代煎茶法用的茶是饼茶。",
-        ans: true,
-        desc: "解析：唐代主流制茶为蒸压饼茶，煎茶需烤茶碾碎投入釜中煎煮。"
-    },
-    {
-        q: "民俗茶饮不但有茶艺，同时蕴含着茶道。",
-        ans: true,
-        desc: "解析：各民族茶俗（擂茶、三道茶、酥油茶）有固定冲泡礼仪，背后承载待客、敬人、平和的茶道精神。"
-    },
-    {
-        q: "茶文化包含物态文化、制度文化、行为文化、心态文化四个层次。",
-        ans: true,
-        desc: "解析：标准茶文化分层理论：物态（茶叶、茶具）、制度（茶税、贡茶制度）、行为（茶礼、茶俗）、心态（茶道精神、审美）四层。"
-    },
-    {
-        q: "荷兰人经海路从中国香港贩运茶叶到印度尼西亚。",
-        ans: false,
-        desc: "解析：早期西方贩茶港口为厦门、广州，清代香港开埠很晚，荷兰东印度公司最早从厦门采购茶叶运往印尼，并非香港。"
-    },
-    {
-        q: "茶树育苗目前均采用无性繁殖的方式。",
-        ans: true,
-        desc: "解析：优良茶树品种多采用扦插、压条等无性繁殖，保证后代性状稳定；有性繁殖仅用于育种科研，商业化育苗全部无性繁殖。"
-    },
-    {
-        q: "黑茶属于再加工茶类。",
-        ans: false,
-        desc: "解析：黑茶是六大基础茶类之一，后发酵工艺属于初制茶叶；花茶、果茶才属于再加工茶。"
-    },
-    {
-        q: "基本六大茶类是按照茶叶加工工艺和汤色来分类的。",
-        ans: false,
-        desc: "解析：六大茶类核心分类依据是发酵度（氧化程度），并非单纯汤色，汤色只是辅助区分特征。"
-    },
-    {
-        q: "茶叶储存不需要避光，光照可以使干爽，更有利于保存。",
-        ans: false,
-        desc: "解析：光线会加速茶多酚氧化、产生日晒味，破坏香气，茶叶储存必须全程避光、密封、低温干燥。"
-    },
-    {
-        q: "商品茶只能是精制茶，不能是毛茶。",
-        ans: false,
-        desc: "解析：毛茶经过简单包装也可直接作为初级商品流通，精制茶是精加工分级后的成品茶，二者都属于商品茶。"
-    },
-    {
-        q: "干燥的工具一般有炒茶锅和烘干机。",
-        ans: true,
-        desc: "解析：绿茶炒干依靠炒茶锅；红茶、乌龙茶、花茶多用烘干机烘干，二者是茶叶干燥核心设备。"
-    },
-    {
-        q: "恢复性历史名茶主要指历史上曾有过，后来未能持续生产或工艺失传，经过创新研究可恢复的名茶。",
-        ans: false,
-        desc: "解析：恢复历史名茶必须复原传统古法工艺，不能随意创新改动核心工序，题干“创新研究”表述错误。"
-    },
-    {
-        q: "中国茶叶品质的鉴别检测目前有仪器检测和感官审评两种方法。",
-        ans: true,
-        desc: "解析：茶叶质检分为感官审评（专业评茶师看外形、汤色、香气、滋味）与理化仪器检测（水分、农残、茶多酚含量）两大体系。"
-    },
-    {
-        q: "茶具虽然种类和品种繁多，但是质地和形状大多相同。",
-        ans: false,
-        desc: "解析：茶具材质分瓷、紫砂、玻璃、竹木、金属；器型有盖碗、壶、盏、杯，质地造型差异极大。"
-    },
-    {
-        q: "竹木茶具有股清香的竹子味，因此常用来泡茶。",
-        ans: false,
-        desc: "解析：竹木材质吸附性强，极易吸味串味，且遇热水释放木竹腥气，极少用于直接泡茶，多作茶则、茶夹。"
-    },
-    {
-        q: "元代青花瓷有小件器物和大件器物两种。",
-        ans: true,
-        desc: "解析：元青花既有小型杯盏、梅瓶，也有巨型大盘、大罐，大小器型同步烧制流通。"
-    },
-    {
-        q: "陶器的发明，是人类社会由旧石器时代发展到新石器时代的标志之一。",
-        ans: true,
-        desc: "解析：旧石器仅打制石器；新石器出现磨制石器、农耕、制陶技术，陶器是新石器文明标志性产物。"
-    },
-    {
-        q: "常用的紫砂茶具种类有紫砂壶、煮水器、茶杯、茶船、茶叶罐等。",
-        ans: false,
-        desc: "解析：传统紫砂极少制作煮水器，煮水多用银、铜、玻璃壶，紫砂煮水器不属于常规配套茶具。"
-    },
-    {
-        q: "名泉是指能被大众认可，具有一定知名度的泉水。",
-        ans: true,
-        desc: "解析：名泉评判标准：水质适宜泡茶、历代文人记载、大众广泛熟知认可。"
-    },
-    {
-        q: "硬水如果可以通过煮沸后转化成软水，这种硬水称为暂时硬水。",
-        ans: true,
-        desc: "解析：暂时硬水碳酸氢钙镁加热分解为水垢析出，水质变软；永久硬水煮沸无改善。"
-    },
-    {
-        q: "“山后涓涓涌圣泉，盈虚消长景堪传。”此诗是对圣泉(又名百盈泉)泉水景观的赞美。",
-        ans: false,
-        desc: "解析：该诗句描写济南趵突泉，并非百盈圣泉。"
-    },
-    {
-        q: "以冲泡方式来分，茶艺主要有烹茶法、点茶法、泡茶法等。",
-        ans: true,
-        desc: "解析：历代主流饮茶技法：唐代烹（煎）茶、宋代点茶、明清至今散茶直接冲泡，三类茶艺体系。"
-    },
-    {
-        q: "好茶的香气自然、纯真，一般小种红茶带有蜜糖香、干果香。",
-        ans: false,
-        desc: "解析：正山小种传统带有松烟香；蜜糖香、果蜜香多见于金骏眉、滇红，不是小种红茶标准香型。"
-    },
-    {
-        q: "冲泡信阳毛尖绿茶，适宜用玻璃杯，用上投法冲泡。",
-        ans: false,
-        desc: "解析：信阳毛尖芽头细嫩，上投法水温高易烫熟芽叶；适合下投/中投低温水冲泡保护鲜爽度。"
-    },
-    {
-        q: "泡茶的水温，通常是指将泡茶用水烧沸后，再让其自然冷却至所需的温度。",
-        ans: true,
-        desc: "解析：实操茶艺标准操作：水完全煮沸后静置降温，避免沸水直接冲泡细嫩茶叶破坏营养与香气。"
-    },
-    {
-        q: "在茶艺活动中，礼仪是对茶艺师的要求，对品茶人和其它参与者不作要求。",
-        ans: false,
-        desc: "解析：茶道礼仪双向约束，茶艺师、宾客都需遵守奉茶、行礼、安静品饮等礼仪规范，营造和谐茶席氛围。"
-    },
-    {
-        q: "老白茶的冲泡水温建议使用接近100℃，或者进行煮饮。",
-        ans: true,
-        desc: "解析：陈年白茶内含物质沉淀，高温沸水、熬煮才能充分释放药香、枣香与滋味。"
-    },
-    {
-        q: "根据茶艺泡茶“三要素”，要冲泡一杯浓淡适中的茶汤，在水温一定的情况下，用茶量多时，冲泡时间宜短。",
-        ans: true,
-        desc: "解析：投茶量大内含物质析出速度快，缩短浸泡时间避免茶汤苦涩；投茶少则适当延长出汤时间。"
-    },
-    {
-        q: "茶鲜叶中的含量比例最高的物质是茶多酚。",
-        ans: false,
-        desc: "解析：鲜叶水分占75%-80%，是含量最高物质；茶多酚干茶中占比高，鲜叶中远低于水分。"
-    },
-    {
-        q: "《神农本草经》最早记载了茶能解毒，可以把茶作为一味防病治疾、养生保健的药物来应用。",
-        ans: true,
-        desc: "解析：古籍《神农本草经》记录茶叶解毒、清热功效，是最早将茶作为药用典籍记录。"
-    },
-    {
-        q: "茶叶中含有多糖类物质和蛋白质，建议糖尿病患者不喝。",
-        ans: false,
-        desc: "解析：茶叶茶多糖辅助调节血糖，无糖淡茶水适合糖尿病人饮用；只有加糖调味茶饮才不适合。"
-    },
-    {
-        q: "食品是指供人食用或饮用的成品和原料以及按照传统既是食品又是药品的物品，但不包括以治疗为目的的物品。",
-        ans: true,
-        desc: "解析：国家食品安全法明确定义，治疗类药品不属于食品范畴。"
-    },
-    {
-        q: "茶艺馆经营场所严禁存放易燃、易爆、有毒的物品。",
-        ans: true,
-        desc: "解析：茶馆明火煮水、多木质软装，消防规范禁止存放酒精、汽油、化工有毒危险品，规避火灾中毒风险。"
-    },
-    {
-        q: "消费者因使用不当造成商品损坏的，经营者不负赔偿责任。",
-        ans: true,
-        desc: "解析：消费者权益保护法规定，人为操作不当、自行损毁商品，商家无需承担赔偿。"
-    },
-    {
-        q: "茶艺人员佩饰要求中，可以佩戴大型耳环。",
-        ans: false,
-        desc: "解析：大型耳环容易脱落掉入茶具，操作时晃动感干扰服务，茶艺工作仅允许极简细小耳钉。"
-    },
-    {
-        q: "茶艺师可以佩戴发簪。",
-        ans: true,
-        desc: "解析：简约小巧木质、素银发簪固定碎发不影响操作即可，禁止夸张金属大件头饰。"
-    },
-    {
-        q: "茶事服务形体礼仪要求身体姿态应该保持自然、端庄。",
-        ans: true,
-        desc: "解析：茶艺站姿、坐姿、奉茶动作标准核心为端正舒展，不歪靠、不浮夸，呈现文雅气质。"
-    },
-    {
-        q: "路遇熟悉的宾客应可不用普通话主动打招呼问好，以体现亲切。",
-        ans: false,
-        desc: "解析：营业场所通用普通话接待，避免方言造成其他客人听不懂，统一使用标准普通话问候。"
-    },
-    {
-        q: "为了使宾客感觉亲切和茶艺馆的与时俱进，茶艺人员在工作中可频繁使用网络用语，如“yyds”“orz”等进行交流。",
-        ans: false,
-        desc: "解析：茶馆服务语言正式文雅，网络流行俚语不够庄重，不适合面向各类年龄宾客使用。"
-    },
-    {
-        q: "在茶艺馆中，一般应选择容貌端庄秀丽又善于言辞的工作人员担任迎宾工作。",
-        ans: true,
-        desc: "解析：迎宾岗代表门店形象，要求仪态端正、沟通得体，第一时间接待引导客人。"
-    },
-    {
-        q: "点单是茶馆服务流程中最重要的环节。一般来说，茶馆很少安排新员工去点单，而是会在员工经过一定的考核后才安排此岗位工作。",
-        ans: true,
-        desc: "解析：点单需要熟记茶品价格、特性、适配需求，专业度要求高，新人培训考核合格后方可上岗。"
-    },
-    {
-        q: "茶艺馆应建立卫生管理制度，对工作人员进行卫生知识的培训和考核。",
-        ans: true,
-        desc: "解析：餐饮类经营场所强制要求卫生管理培训、定期考核，保障食品安全与环境卫生。"
-    },
-    {
-        q: "茶室环境卫生的维护措施包括在茶室內放置垃圾桶并定期清理。",
-        ans: true,
-        desc: "解析：分区设置垃圾桶，及时清理茶渣、纸巾等垃圾，保持室内无异味、整洁。"
-    },
-    {
-        q: "音响设备可以同时连接多个音频源。",
-        ans: true,
-        desc: "解析：现代功放、蓝牙音响支持多路音源切换输入，可同时接入手机、播放器等多设备。"
-    },
-    {
-        q: "在使用消防灭火器时，首先要将灭火器提到距离火源足够远的地方确保自身安全。",
-        ans: false,
-        desc: "解析：灭火器标准使用距离火源2-3米，过远灭火剂无法覆盖火焰，需靠近至有效喷射范围。"
-    },
-    {
-        q: "消防灭火器具體分为干粉类、泡沫类和气体类三大种类。",
-        ans: true,
-        desc: "解析：商用场所主流灭火器分类：干粉、泡沫、二氧化碳气体灭火器三类，适配不同火情。"
-    },
-    {
-        q: "在使用防毒面具时，将面具放置在面部，调整头带和鼻夹，确保密合无误。佩戴时应避免头发和胡须等遮挡面部，以保证防护效果。",
-        ans: true,
-        desc: "解析：毛发夹在面罩与脸部缝隙会造成漏气，佩戴前整理头发胡须，收紧头带鼻夹保证密封。"
-    },
-    {
-        q: "当今调饮茶茶艺表演一般选用红茶茶汤中加入糖、牛奶、柠檬、咖啡、蜂蜜或香槟酒等。",
-        ans: true,
-        desc: "解析：红茶基底兼容性强，适合搭配奶、果汁、蜂蜜、低度酒制作调饮茶，是舞台调饮主流原料。"
-    },
-    {
-        q: "用紫砂壶冲泡铁观音的茶艺表演，因铁观音的外形条索较紧实，一般将茶叶浸在壶中1min后才将茶汤倒入公道杯中。",
-        ans: true,
-        desc: "解析：紧结铁观音润茶后首泡静置约1分钟，充分释放花香与滋味，适合完整舞台展示风味。"
-    },
-    {
-        q: "由于潮州工夫茶多选用凤凰水仙系茶品，该种茶条索粗大挺直，适合用大肚开口的盖碗冲泡。",
-        ans: true,
-        desc: "解析：凤凰单丛条索粗壮，宽口盖碗便于投取茶叶、充分舒展，是潮州工夫传统器具。"
-    },
-    {
-        q: "名优绿茶大多采用细嫩的芽叶经过精细加工而成，在饮用时，为了保持其香味的鲜爽，一般采用80-90℃水温冲泡名优绿茶。因此，在名优绿茶感官审评时，我们选择90℃的水温进行冲泡。",
-        ans: false,
-        desc: "解析：国标茶叶审评统一使用100℃沸水冲泡，日常饮用降温防烫芽，审评需沸水完全释放内质，二者标准不同。"
-    },
-    {
-        q: "奉茶时，茶艺师不能喷香水，涂抹有异味的护手霜。",
-        ans: true,
-        desc: "解析：外来浓烈香气会干扰茶叶本身香气，茶道操作全程禁止香水、香氛护手霜、香精类护肤品。"
-    },
-    {
-        q: "绿茶茶艺表演时，将水煮至100度沸腾，用以冲泡。",
-        ans: false,
-        desc: "解析：名优绿茶表演需沸水降温至80-90℃，100℃沸水直接冲泡会烫熟嫩芽产生熟闷味。"
-    },
-    {
-        q: "用盖碗杯冲泡绿茶的茶水比例为1:25。",
-        ans: false,
-        desc: "解析：标准茶水比例1:50，1:25投茶量加倍，茶汤苦涩过重，不适合绿茶品饮。"
-    },
-    {
-        q: "用壶泡绿茶，茶叶用量按壶的大小而定，一般以每克茶冲100mL的水的比例，将茶叶投入茶壶待泡。",
-        ans: false,
-        desc: "解析：题库第二版修正答案，该表述不符合该版本判定标准，故为错误。"
-    },
-    {
-        q: "泡饮红茶一般将茶叶放在锅中熬煮。",
-        ans: false,
-        desc: "解析：现代红茶多沸水直接冲泡；熬煮多见于少数民族奶茶、古式煮茶，不属于常规泡饮方式。"
-    },
-    {
-        q: "紫砂壶造型丰富，与各种艺术形式相结合，融书画，诗文、雕塑等为一体。",
-        ans: true,
-        desc: "解析：紫砂艺术集制陶、书法、绘画、篆刻、雕塑一体，器身装饰文化底蕴丰富。"
-    },
-    {
-        q: "东方美人茶外形特征“枝叶相连微卷曲，五色相间，白毫显”。",
-        ans: true,
-        desc: "解析：东方美人被小绿叶蝉叮咬发酵，叶片白、绿、黄、褐、红五色相间，带细密白毫。"
-    },
-    {
-        q: "二级白牡丹外形自然舒展，二叶抱芯，色泽灰绿，毫香显。内质滋味鲜醇；汤色橙黄清澈明亮；叶底芽叶成朵，肥嫩匀整。",
-        ans: false,
-        desc: "解析：二级白牡丹叶片偏老，叶底偏硬、匀整度差；芽叶肥嫩成朵是一级白牡丹特征。"
-    },
-    {
-        q: "黑茶具有干茶色泽偏深，红中带乌黑。",
-        ans: false,
-        desc: "解析：不同黑茶色泽区分大，普洱生茶青褐、熟茶黑褐、六堡黑润，不能统一描述为红中乌黑。"
-    },
-    {
-        q: "茉莉花茶常见的品质缺陷有青闷、花蒂味、香浮、香薄。",
-        ans: true,
-        desc: "解析：花茶加工工艺不当易产生青草闷味、残留花梗味，香气轻浮不落水、香气淡薄为典型劣质表现。"
-    },
-    {
-        q: "盖碗冲泡法，可以直接个人品饮，也可分杯品饮，即浸泡好后分至各品茗杯中。瓷质盖碗适用于泡饮中高档绿茶，重在品味。",
-        ans: true,
-        desc: "解析：盖碗一人独饮、多人分汤均可；白瓷不吸味，完美呈现绿茶清香鲜爽，是绿茶首选器具。"
-    },
-    {
-        q: "绿茶品饮时，品尝头开茶，重在品尝名优绿茶的鲜味和茶香。",
-        ans: false,
-        desc: "解析：题库第二版修正判断，头泡香气高但苦涩物质同步析出，二泡鲜爽度最佳。"
-    },
-    {
-        q: "红茶，性平和，可以收到生热暖胃之效。",
-        ans: false,
-        desc: "解析：红茶全发酵茶性温热，并非平和；平和是老白茶、熟普特质。"
-    },
-    {
-        q: "红茶的品质特性是不含叶绿素、维生素C，茶性温热。",
-        ans: false,
-        desc: "解析：红茶发酵后叶绿素大量转化，但仍有微量残留；含有少量维生素C，并非完全不含。"
-    },
-    {
-        q: "品饮台湾乌龙茶时，将泡好的茶汤首先倒入品茗杯中。",
-        ans: false,
-        desc: "解析：台式乌龙流程：茶汤先倒入闻香杯，再倒扣品茗杯，先闻香再品饮。"
-    },
-    {
-        q: "“君不可一日无茶”这句话出自康熙皇帝。",
-        ans: false,
-        desc: "解析：该名句为乾隆皇帝所言，乾隆嗜茶，巡访各大茶产区，留下大量茶诗。"
-    },
-    {
-        q: "”两头是道吃一盏莫问东西“这句话说的是只要心坚志诚，无论何条道路，都可印证大道，既然如此，且坐下品茗一盏，不要再苦苦求取东西方向了。",
-        ans: true,
-        desc: "解析：禅茶合一偈语，借品茶喻修行，不执着外在方向，内心澄明即是大道。"
-    },
-    {
-        q: "茶的抗癌作用是最近20多年来研究得最多并取得显著进展的领域。",
-        ans: true,
-        desc: "解析：现代药理近二十年大量研究证实茶多酚、EGCG具备抗氧化、抑制癌细胞增殖相关活性，是热门研究方向。"
-    },
-    {
-        q: "在茶艺销售的服务中，主动导购多用于顾客较多的时候，具有针对性强、易于双向沟通等优点。",
-        ans: false,
-        desc: "解析：主动一对一导购适合少量客人；客流多时适合自助展示、被动答疑，多人接待无法精准一对一沟通。"
-    },
-    {
-        q: "茶艺服务人员遇到初次相交的顾客时应热情行握手礼。",
-        ans: false,
-        desc: "解析：茶道接待初次宾客以鞠躬、点头礼为主，不主动握手，尊重客人社交距离。"
-    },
-    {
-        q: "在向顾客推介茶叶商品、茶艺服务时，要做到“先难后易”，即在推介时应当从顾客难理解的地方着手，然后其他问题理解起来就很简单。",
-        ans: false,
-        desc: "解析：销售推介标准逻辑为先简单易懂基础款，循序渐进介绍高端复杂品类，先易后难降低理解门槛。"
-    },
-    {
-        q: "如果客观上无能满足顾客的要求，却在主观上给予肯定的承诺，这样是为了安抚顾客，让顾客感受到自己的诚意。",
-        ans: false,
-        desc: "解析：无法达成需求不可虚假承诺，应当如实说明并提供替代方案，虚假承诺会引发客诉失去信任。"
-    },
-    {
-        q: "茶艺师在介绍茶品时要选择时机，反应迅速，滔滔不绝，不要让顾客有犹豫的机会。",
-        ans: false,
-        desc: "解析：推介讲解适度留白，给予客人思考选择空间，长篇强推会造成顾客反感。"
+  <div class="container">
+    <!-- 頂部資訊與控制欄 -->
+    <div class="header-panel">
+      <div class="date-display">
+        <span id="date-text">---- 年 -- 月 -- 日</span>
+        <span id="day-text" class="day-badge">---</span>
+      </div>
+
+      <div class="format-toggle">
+        <span>12H</span>
+        <label class="switch">
+          <input type="checkbox" id="format-switch" checked>
+          <span class="slider"></span>
+        </label>
+        <span>24H</span>
+      </div>
+    </div>
+
+    <!-- 翻頁鐘主要區域 -->
+    <div class="clock-grid">
+      <!-- 小時 -->
+      <div class="group-container">
+        <div class="flip-group">
+          <div class="flip-card" id="h1"><div class="card-top"><span>0</span></div><div class="card-bottom"><span>0</span></div></div>
+          <div class="flip-card" id="h2"><div class="card-top"><span>0</span></div><div class="card-bottom"><span>0</span></div></div>
+        </div>
+        <span class="group-label">Hours</span>
+      </div>
+
+      <div class="separator">:</div>
+
+      <!-- 分鐘 -->
+      <div class="group-container">
+        <div class="flip-group">
+          <div class="flip-card" id="m1"><div class="card-top"><span>0</span></div><div class="card-bottom"><span>0</span></div></div>
+          <div class="flip-card" id="m2"><div class="card-top"><span>0</span></div><div class="card-bottom"><span>0</span></div></div>
+        </div>
+        <span class="group-label">Minutes</span>
+      </div>
+
+      <div class="separator">:</div>
+
+      <!-- 秒鐘 -->
+      <div class="group-container">
+        <div class="flip-group">
+          <div class="flip-card" id="s1"><div class="card-top"><span>0</span></div><div class="card-bottom"><span>0</span></div></div>
+          <div class="flip-card" id="s2"><div class="card-top"><span>0</span></div><div class="card-bottom"><span>0</span></div></div>
+        </div>
+        <span class="group-label">Seconds</span>
+      </div>
+
+      <!-- AM/PM 標示 (僅 12H 模式顯示) -->
+      <div id="ampm" class="ampm-indicator">AM</div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * 翻頁卡片類別 (FlipCard Class)
+     * 封裝單一數字卡片的 DOM 結構控制與 3D 翻頁動畫邏輯
+     */
+    class FlipCard {
+      constructor(element) {
+        this.element = element;
+        this.topVal = this.element.querySelector('.card-top span');
+        this.bottomVal = this.element.querySelector('.card-bottom span');
+        this.currentValue = '0';
+      }
+
+      /**
+       * 設置數值並觸發動畫
+       * @param {string|number} newValue - 新數字
+       */
+      setVal(newValue) {
+        newValue = String(newValue);
+        if (this.currentValue === newValue) return;
+
+        // 移除先前的動畫殘留
+        this.element.classList.remove('flipping');
+        const oldLeaves = this.element.querySelectorAll('.flip-leaf-top, .flip-leaf-bottom');
+        oldLeaves.forEach(node => node.remove());
+
+        // 建立動畫頁片
+        const leafTop = document.createElement('div');
+        leafTop.className = 'flip-leaf-top';
+        leafTop.innerHTML = `<span>${this.currentValue}</span>`;
+
+        const leafBottom = document.createElement('div');
+        leafBottom.className = 'flip-leaf-bottom';
+        leafBottom.innerHTML = `<span>${newValue}</span>`;
+
+        // 預先更新下半部底層背景為新數字
+        this.bottomVal.textContent = newValue;
+
+        // 插入動畫節點
+        this.element.appendChild(leafTop);
+        this.element.appendChild(leafBottom);
+
+        // 強制 DOM 重繪以確保 CSS 動畫流暢觸發
+        void this.element.offsetWidth;
+        this.element.classList.add('flipping');
+
+        // 動畫結束後更新上半部背景並清理 DOM
+        setTimeout(() => {
+          this.topVal.textContent = newValue;
+          leafTop.remove();
+          leafBottom.remove();
+          this.element.classList.remove('flipping');
+        }, 600);
+
+        this.currentValue = newValue;
+      }
+
+      /**
+       * 強制刷新（無視動畫，用於切換 12/24H 模式）
+       */
+      setValueDirectly(newValue) {
+        newValue = String(newValue);
+        this.currentValue = newValue;
+        this.topVal.textContent = newValue;
+        this.bottomVal.textContent = newValue;
+      }
     }
-];
 
-// 游戏全局变量
-let currentQuestionIndex = 0;
-let score = 0;
-let shuffledList = [];
+    /* ----------------------------------------------------
+       時鐘主體邏輯控制器
+    ---------------------------------------------------- */
+    document.addEventListener('DOMContentLoaded', () => {
+      // 初始化 6 個翻頁單元
+      const cards = {
+        h1: new FlipCard(document.getElementById('h1')),
+        h2: new FlipCard(document.getElementById('h2')),
+        m1: new FlipCard(document.getElementById('m1')),
+        m2: new FlipCard(document.getElementById('m2')),
+        s1: new FlipCard(document.getElementById('s1')),
+        s2: new FlipCard(document.getElementById('s2'))
+      };
 
-// DOM元素
-const questionTextEl = document.getElementById('question-text');
-const currentNumEl = document.getElementById('current-num');
-const totalCountEl = document.getElementById('total-count');
-const scoreEl = document.getElementById('score');
-const btnTrue = document.getElementById('btn-true');
-const btnFalse = document.getElementById('btn-false');
-const explainBlock = document.getElementById('explain-block');
-const explainContent = document.getElementById('explain-content');
-const btnNext = document.getElementById('btn-next');
-const finalBlock = document.getElementById('final-block');
-const finalScoreEl = document.getElementById('final-score');
-const finalTotalEl = document.getElementById('final-total');
-const btnRestart = document.getElementById('btn-restart');
-const selectButtons = document.getElementById('select-buttons');
+      const dateText = document.getElementById('date-text');
+      const dayText = document.getElementById('day-text');
+      const ampmText = document.getElementById('ampm');
+      const formatSwitch = document.getElementById('format-switch');
 
-// 打乱数组（随机不重复抽取全部题目）
-function shuffleArray(arr) {
-    const copy = [...arr];
-    for (let i = copy.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
-    }
-    return copy;
-}
+      let is24HourMode = formatSwitch.checked;
+      let lastDateString = '';
 
-// 加载当前题目
-function loadQuestion() {
-    explainBlock.style.display = 'none';
-    selectButtons.style.display = 'flex';
-    btnTrue.disabled = false;
-    btnFalse.disabled = false;
-    finalBlock.style.display = 'none';
+      const daysOfWeek = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
 
-    const item = shuffledList[currentQuestionIndex];
-    questionTextEl.innerText = item.q;
-    currentNumEl.innerText = currentQuestionIndex + 1;
-    totalCountEl.innerText = shuffledList.length;
-    scoreEl.innerText = score;
-}
+      // 切換開關事件
+      formatSwitch.addEventListener('change', (e) => {
+        is24HourMode = e.target.checked;
+        updateClock(true); // 強制重新整理
+      });
 
-// 作答处理
-function handleAnswer(userSelect) {
-    btnTrue.disabled = true;
-    btnFalse.disabled = true;
-    const item = shuffledList[currentQuestionIndex];
-    const isCorrect = userSelect === item.ans;
-    if (isCorrect) score++;
-    scoreEl.innerText = score;
+      /**
+       * 時鐘核心更新函式
+       * @param {boolean} forceReset - 是否無視動畫強制刷新 DOM
+       */
+      function updateClock(forceReset = false) {
+        const now = new Date();
 
-    // 展示解析
-    explainBlock.style.display = 'block';
-    let resultText = isCorrect ? "✅ 回答正确！" : "❌ 回答错误";
-    explainContent.innerHTML = `${resultText}<br><br>${item.desc}`;
-}
+        // 1. 更新日期 (每日更新一次即可)
+        const dateStr = `${now.getFullYear()} 年 ${now.getMonth() + 1} 月 ${now.getDate()} 日`;
+        if (dateStr !== lastDateString) {
+          dateText.textContent = dateStr;
+          dayText.textContent = daysOfWeek[now.getDay()];
+          lastDateString = dateStr;
+        }
 
-// 下一题（修复提前结束bug：判断索引等于总长度才结束）
-function nextQuestion() {
-    currentQuestionIndex++;
-    if (currentQuestionIndex >= shuffledList.length) {
-        // 全部题目完成，结束游戏
-        selectButtons.style.display = 'none';
-        explainBlock.style.display = 'none';
-        finalBlock.style.display = 'block';
-        finalScoreEl.innerText = score;
-        finalTotalEl.innerText = shuffledList.length;
-        return;
-    }
-    loadQuestion();
-}
+        // 2. 解析時間數值
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
 
-// 重新开始游戏
-function restartGame() {
-    currentQuestionIndex = 0;
-    score = 0;
-    shuffledList = shuffleArray(questionList);
-    loadQuestion();
-}
+        if (!is24HourMode) {
+          ampmText.style.display = 'block';
+          ampmText.textContent = hours >= 12 ? 'PM' : 'AM';
+          hours = hours % 12;
+          hours = hours ? hours : 12; // 0 時轉為 12
+        } else {
+          ampmText.style.display = 'none';
+        }
 
-// 绑定按钮事件
-btnTrue.addEventListener('click', () => handleAnswer(true));
-btnFalse.addEventListener('click', () => handleAnswer(false));
-btnNext.addEventListener('click', nextQuestion);
-btnRestart.addEventListener('click', restartGame);
+        const hoursStr = String(hours).padStart(2, '0');
 
-// 页面初始化启动游戏
-restartGame();
-</script>
+        // 3. 套用至翻頁卡片
+        const targetValues = {
+          h1: hoursStr[0], h2: hoursStr[1],
+          m1: minutes[0],  m2: minutes[1],
+          s1: seconds[0],  s2: seconds[1]
+        };
+
+        Object.keys(cards).forEach(key => {
+          if (forceReset) {
+            cards[key].setValueDirectly(targetValues[key]);
+          } else {
+            cards[key].setVal(targetValues[key]);
+          }
+        });
+      }
+
+      // 初始化顯示並建立高頻校準 Timer
+      updateClock(true);
+      setInterval(() => updateClock(false), 1000);
+    });
+  </script>
 </body>
 </html>
